@@ -1,2 +1,1 @@
-# HanwooGalbi
-data compilation
+학원에서했던 예제들을 정리했습니다. 개인적으로 공부한 내용들을 정리하는 공간입니다. 
