@@ -1,0 +1,355 @@
+SQL 개념
+
+SQL : 표준 관계형 데이터베이스 언어, 관계대수와 관계해석을 기초로 한 혼합 데이터 언어다. 사용 용도에 따라 DDL, DML, DCL로 구분한다.
+
+- 관계대수 : 관계형 데이터베이스에서 원하는 정보와 그 정보를 유도하는지를 기술하는 절차적 언어
+
+(순수관계: Select 선택, Project 추출, Join 병합, Division 나누기 / 
+
+ 집합연산: Union 합집합, Intersection 교집합, Difference 차집합, Cartesian Product 교차곱
+
+)
+
+- 관계해석 : 원하는 정보가 무엇이라는 것만 정의하는 비절차적 특성
+
+(연산자: OR, AND, NOT)
+
+- DDL : Data Define - 데이터 정의어
+
+- DML : Data Manipulation - 데이터 조작어
+
+- DCL : Data Control - 데이터 제어어
+
+​
+
+메타 데이터(Metadata) = 스키마(Schema) : 데이터를 설명하는 데이터
+
+-> "학년은 숫자 1자리고 1~3만 저장할 수 있다"는 실제 데이터가 아닌 메타 데이터에 해당한다.
+
+​
+
+스키마는 다음 세 가지 종류가 있다.
+
+① 외부 스키마(External Schma, 서브스키마)
+
+사용자 요구 사항을 도출하는 과정
+
+데이터베이스 시스템 사용자의 관점에서 보고자 하는 정보의 집합
+
+② 개념 스키마(Conceptual Schma, 논리 스키마)
+
+사용자 관점 스키마인 외부 스키마를 분석해 데이터베이스에 저장해야 할 필요가 있는 정보들을 도출하 여 데이터베이스 구조로 설계한 것
+
+데이터베이스 접근권한, 보안정책, 무결성 규칙을 명세화 
+
+③ 내부 스키마(Inrernal Schema, 물리 스키마)
+
+논리 스키마를 컴퓨터 내부에 저장할 수 있는 물리적인 구조로 변환한 것
+
+DDL
+
+DDL(Data Definition Language) - 데이터 정의어, 관계 구조 생성, 변경, 삭제하는 명령어.
+
+- CREATE : 스키마, 도메인, 테이블, 뷰, 인덱스 정의
+
+- ALTER : 테이블 정의 등 구조 변경
+
+- RENAME : 테이블명 변경
+
+- DROP : 스키마, 도메인, 테이블, 뷰, 인덱스 삭제
+
+- TRUNCATE : 데이터로의 내용 초기화
+
+​
+
+CREATE
+
+스키마 정의 : 하나의 응용 사용자에 속하는 테이블과 기타 구성 요소 등을 그룹짓기 위함
+
+CREATE SCHEMA 스키마명 AUTHORIZATION 사용자아이디
+// CREATE SCHEMA 주식회사 AUTHORIZATION USER01 <- USER01 ID인 사용자의 스키마 주식회사 정의
+도메인 정의 : 한 속성이 취할 수 있는 동일한 타입의 원자값들의 집합
+
+- []로 묶인 부분은 생략 가능하다.
+
+CREATE DOMAIN 도메인명 데이터타입
+    [DEFAULT 기본값]
+    [CONSTRAINT 제약조건명 CHECK (범위값)]
+// 학년을 정의하는 도메인은 숫자형이고 크기는 1이다. 기본값은 1이고 범위값 내 값만 들어갈 수 있다.
+/*
+CREATE DOMAIN GRADE INT(1)
+    DEFAULT 1
+    [CONSTRAINT VALID-GRADE CHECK (VALUE IN (1, 2, 3))]
+*/
+테이블 정의 : 설계 단계에서는 주로 릴레이션으로 부른다. 테이블을 정의하면 각 컬럼 속성, 데이터 타입, 키 여부 등을 정의한다.
+
+- 속성명 = 컬럼명
+
+CREATE TABLE 테이블명
+  (속성명 데이터타입 [NOT NULL],
+  [, PRIMARY KEY (기본키_속성명, )]
+  [, UNIQUE (대체키_속성명, )]
+  [, FOREIGN KEY (외래키_속성명, )
+    REFERENCES 참조테이블(기본키_속성명, )]
+    [ON DELETE 옵션]
+    [ON UPDATE 옵션]
+  [CONSTRAINT 제약조건명] [CHECK (조건식)]
+뷰 정의 : 뷰는 하나 이상 기본 테이블로부터 유도되는 이름을 갖는 가상 테이블이다. 
+
+CREATE VIEW 뷰명[(속성명[, 속성명, ])]
+AS SELECT
+인덱스 : 검색을 빠르게 하기 위해 만든 보조적인 데이터 구조
+
+- UNIQUE : 사용 시 중복 값이 없는 속성으로 생성
+
+- ASC : 오름차순 / DESC : 내림차순
+
+- CLUSTER : 지정된 키에 따라 튜플들을 그룹으로 지정하기 위해 사용
+
+CREATE [UNIQUE] INDEX 인덱스명
+  ON 테이블명({속성명 [ASC|DESC] [속성명 [ASC|DESC]]})
+  [CLUSTER]
+​
+
+ALTER
+
+테이블에 대한 정의를 변경한다.
+
+ALTER TABLE 테이블명 ADD 속성명 데이터타입
+ALTER TABLE 테이블명 ALTER 속성명 
+ALTER TABLE 테이블명 DROP COLUMN 속성명
+​
+
+DROP
+
+스키마, 도메인, 테이블, 뷰, 인덱스, 트리거를 제거한다.
+
+DROP SCHEMA 스키마명 
+DROP DOMAIN 도메인명
+DROP TABLE 테이블명
+DROP VIEW 뷰명
+DROP INDEX 인덱스명
+DML
+
+DML(Data Manipulation Language) - 데이터 조작어, SQL에서 가장 기본적인 언어.
+
+- INSERT : 새 튜플 삽입
+
+- SELECT : 데이터 검색/조회
+
+- UPDATE : 데이터 수정
+
+- DELETE : 데이터 삭제
+
+​
+
+INSERT
+
+테이블에 새 튜플(=열)을 삽입한다.
+
+- 대응하는 속성과 데이터는 개수와 데이터 타입이 일치해야 한다.
+
+- 테이블의 모든 속성을 삽입할 때는 속성명을 생략할 수 있다.
+
+- SELECT문을 사용해 다른 테이블의 검색 결과를 삽입할 수 있다.
+
+INSERT INTO 테이블명[(속성명1, 속성명2, ...)]
+  VALUES (데이터1, 데이터2, ...)
+예제 : 
+
+// Ex-1. <사원> 테이블에 이름이 '이순신'이고 부서가 '기획'인 사원 삽입
+INSERT INTO 사원(이름, 부서) VALUES ('이순신', '기획');
+
+// Ex-2. <사원> 테이블에 ('장보고', '기획', '05/03/73', '설의동', 70) 열 삽입
+INSERT INTO 사원 VALUES ('장보고', '기획', '05/03/73', '설의동', 70);
+
+// Ex-3. <사원> 테이블에 있는 편집 부서의 모든 튜플을 <편집부원(이름, 생일, 주소, 기본급)>에 삽입
+INSERT INTO 편집부원(이름, 생일, 주소, 기본급)
+SELECT 이름, 생일, 주소, 기본급 FROM 사원 WHERE 부서='편집';
+​
+
+SELECT
+
+테이블을 구성하는 튜플들 중 전체 또는 조건을 만족하는 튜플을 검색해 주기억장치에 임시 테이블로 구성한다.
+
+사용 형식은 다음과 같다.
+
+- (ALL | DISTINCT) : PREDICATE, 검색할 튜플을 제한하고자 쓰는 조건으로 모든 튜플(기본값), 중복값 제거다.
+
+- WHERE 조건 : 검색할 조건을 기술한다. 처리 순서는 연산자 우선순위를 따른다.
+
+- GROUP BY : 특정 속성을 기준으로 그룹화하여 검색할 때 사용한다. 일반적으로 HAVING과 함께 사용한다.
+
+(그룹 함수로 COUNT, MAX, MIN, SUM, AVG가 있다.)
+
+- HAVING : 그룹에 대한 조건을 기술한다.
+
+- ORDER BY : 특정 속성을 기준으로 정렬한다. (ASC: 오름차순, 기본값 / DESC: 내림차순)
+
+SELECT (ALL | DISTINCT) 속성명
+FROM 테이블명
+(WHERE 조건)
+(GROUP BY 속성명)
+(HAVING 그룹조건)
+(ORDER BY 속성 (ASC | DESC) );
+예제 : 
+
+// Ex-1. <사원> 테이블의 모든 튜플 검색
+SELECT * FROM 사원;
+
+// Ex-2. <사원> 테이블에서 부서만 검색
+SELECT 부서 FROM 사원;
+
+// Ex-3. <사원> 테이블에서 부서만 검색하되 중복 제거
+SELECT DISTINCT 부서 FROM 사원;
+
+// Ex-4. <사원> 테이블에서 부서가 '기획'인 튜플만 검색
+SELECT * FROM 사원 WHERE 부서='기획';
+
+// Ex-5. <사원> 테이블에서 부서가 '기획'이고 기본급이 110보다 큰 튜플만 검색
+SELECT * FROM 사원 WHERE 부서='기획' AND 기본급 > 110;
+
+// Ex-6. <사원> 테이블에서 부서가 '기획'이거나 '개발'인 튜플만 검색
+SELECT * FROM 사원 WHERE 부서='기획' OR 부서='개발';
+SELECT * FROM 사원 WHERE 부서 IN ('기획', '개발');
+
+// Ex-7. <사원> 테이블에서 이름의 첫 글자가 '정'인 모든 튜플 검색
+SELECT * FROM 사원 WHERE 이름 LIKE '정%';
+
+// Ex-8. <사원> 테이블에서 기본급이 100에서 120 사이인 튜플 검색
+SELECT * FROM 사원 WHERE 기본급 BETWEEN 100 AND 120;
+
+// Ex-9. <사원> 테이블에서 주소가 NULL인 튜플 검색
+SELECT * FROM 사원 WHERE 주소 IS NULL;
+
+// Ex-10. <사원> 테이블에서 부서가 '기획'인 튜플만 검색하되 이름 기준 오름차순 정렬
+SELECT * FROM 사원 WHERE 부서='기획' ORDER BY 이름;
+
+// Ex-11. <사원> 테이블에서 부서별로 기본급의 평균을 구해 부서 기준 내림차순 정렬
+SELECT 부서, AVG(기본급) AS 평균
+FROM 사원 
+GROUP BY 부서
+ORDER BY 부서 DESC;
+​
+
+UPDATE
+
+테이블의 튜플 중 특정 튜플의 내용을 갱신할 때 사용한다.
+
+UPDATE 테이블명
+SET 속성명 = 데이터, ...
+WHERE 조건;
+예제 : 
+
+// Ex-1. <사원> 테이블의 홍찰찰의 주소를 "안산동"으로 갱신
+UPDATE 사원 SET 주소='안산동' WHERE 이름='홍찰찰';
+
+// Ex-2. <사원> 테이블에서 "홍찰찰"의 부서를 "개발"로 변경하고 기본급을 10 인상
+UPDATE 사원 SET 부서='개발', 기본급=기본급+10 WHERE 이름='홍찰찰';
+​
+
+DELETE
+
+테이블에 있는 튜플 중 특정 튜플을 삭제할 때 사용한다.
+
+DELETE FROM 테이블명 WHERE 조건;
+예제 : 
+
+// Ex-1. <사원> 테이블에서 이름이 '홍찰찰'인 튜플 삭제
+DELETE FROM 사원 WHERE 이름='홍찰찰;
+
+// Ex-2. <사원> 테이블에서 모든 튜플을 삭제
+DELETE FROM 사원;
+DML, SLECT - JOIN
+
+https://pearlluck.tistory.com/46
+
+JOIN(조인) : 2개 이상의 테이블에 대해 연관된 튜플들을 결합해 새 릴레이션 반환
+
+- 크게 INNER JOIN과 OUTER JOIN로 구분하며 LEFT/RIGHT JOIN도 사용
+
+- 일반적으로 FROM 절에 기술하지만 릴레이션이 사용되는 어느 곳에서나 사용할 수 있다.
+
+- 연결 시 테이블이 적어도 하나의 컬럼을 공유해야 하며 공유하는 컬럼을 기본키나 외래키로 사용
+
+​
+
+INNTER JOIN : 내부 조인(교집합)
+
+공통적인 부분만 SELECT, A와 B가 겹치는 것만 합쳐 릴레이션 형성
+
+SELECT A.ID, A.ENAME, A.KNAME
+FROM A INNER JOIN B
+ON A.ID = B.ID;
+​
+
+OUTER JOIN : 외부조인(합집합)
+
+A 테이블이 가지고 있는거, B 테이블이 가지고 있는거 둘 다 합침
+
+SELECT A.ID, A.ENAME, A.KNAME
+FROM A FULL OUTER JOIN B
+ON A.ID = B.ID;
+다음처럼 조건문을 추가하면 공통적인 부분(교집합)을 제외한 것만을 합침
+
+SELECT A.ID, A.ENAME, A.KNAME
+FROM A FULL OUTER JOIN B
+ON A.ID = B.ID;
+WHERE A.ID IS NULL OR B.ID IS NULL
+JOIN 참고 : https://pearlluck.tistory.com/46
+
+ 
+DB JOIN 정리(INNER/LEFT/RIGHT/OUTER)
+join(조인) 둘 이상의 테이블을 연결해서 데이터를 검색하는 방법 연결하려면 테이블들이 적어도 하나의 컬럼을 공유하고 있어야함 이 공유하고 있는 컬럼을 PK 또는 FK값으로 사용 ​ 종류 1. INNER JOIN : 내부..
+
+pearlluck.tistory.com
+
+DCL
+
+DCL(Data Control Language) - 데이터 제의어, 데이터를 보호하고 관리하는 목적의 언어.
+
+- GRANT : 사용자에게 특정 작업의 권한 부여
+
+- REVOKE: 사용자에게 특정 작업의 권한 박탈
+
+- COMMIT : DML에 의해 조작된 내용 확정 처리
+
+- ROLLBACK : COMMIT 전 조작 내용 원상복구
+
+​
+
+GRANT
+
+사용자 등급은 DBA, RESOURCE, CONNECT로 구분한다. 각 관리자, 생성자, 사용자다.
+
+권한은 ALL, SELECT, INSERT, DELETE , UPDATE, ALTER 등이 있다.
+
+GRANT 사용자등급 TO 사용자아이디리스트
+// GRANT RESOURCE TO NABI <- NABI 아이디를 가진 사용자에게 RESOURCE 등급을 부여한다.
+
+GRANT 권한목록 ON 개체 TO 사용자
+// GRANT ALL ON 고객 TO NABI WITH GRANT OPTION 
+// <- NABI 사용자에게 모든 권한 및 다른 사람에게 권한을 부여하는 역할까지 부여
+​
+
+REVOKE
+
+GRANT로 부여한 권한을 해제/취소한다.
+
+REVOKE 사용자등급 FROM 사용자아이디리스트
+
+REVOKE [GRANT OPTION FOR] 권한리스트 ON 개체 FROM 사용자 [CASCADE]
+// REVOKE GRANT OPTION FOR UPDATE ON 고객 FROM STAR;
+// <- START에게 부여한 <고객> 테이블 권한 중 UPDATE를 다른 사람에게 부여하는 권한만 취소한다.
+​
+
+COMMIT
+
+트랜잭션의 모든 변경 내용들을 영구적으로 데이터베이스에 반영하는 명령어
+
+​
+
+ROLLBACK
+
+변경된 내용을 모두 취소하고 데이터베이스를 이전 상태로 되돌리는 명령어
+[출처] [정보처리산업기사] 실기 2과목: DB - SQL(DDL, DML, DCL, JOIN)|작성자 넬티아
